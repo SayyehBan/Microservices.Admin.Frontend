@@ -1,4 +1,4 @@
-﻿namespace Microservices.Admin.Frontend.Models.LinkService;
+﻿namespace Microservices.Admin.Frontend.Models.Links;
 
 public static class LinkServices
 {

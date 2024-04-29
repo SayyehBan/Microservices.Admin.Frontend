@@ -1,4 +1,4 @@
-using Microservices.Admin.Frontend.Models.LinkService;
+using Microservices.Admin.Frontend.Models.Links;
 using Microservices.Admin.Frontend.Models.ViewServices.ProductServices;
 using RestSharp;
 
