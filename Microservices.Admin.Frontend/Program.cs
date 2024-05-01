@@ -8,7 +8,7 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IProductManagementService>(p =>
 {
     return new RProductManagementService(new
-   RestClient(LinkServices.ProductService));
+   RestClient(LinkServices.ApiGatewayForWeb));
 });
 
 var app = builder.Build();
