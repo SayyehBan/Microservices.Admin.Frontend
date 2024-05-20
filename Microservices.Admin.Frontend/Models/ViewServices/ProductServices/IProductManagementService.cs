@@ -1,4 +1,5 @@
 ﻿using Microservices.Admin.Frontend.Models.Dto;
+using Microsoft.AspNetCore.Authentication;
 using RestSharp;
 using System.Text.Json;
 
@@ -14,14 +15,19 @@ public class RProductManagementService : IProductManagementService
 {
 
     private readonly RestClient restClient;
-    public RProductManagementService(RestClient restClient)
+    private readonly IHttpContextAccessor httpContextAccessor;
+
+    public RProductManagementService(RestClient restClient, IHttpContextAccessor httpContextAccessor)
     {
         this.restClient = restClient;
+        this.httpContextAccessor = httpContextAccessor;
     }
 
     public List<ProductDto> GetProducts()
     {
         var request = new RestRequest("/api/ProductManagement", Method.Get);
+        var accsessToken = httpContextAccessor.HttpContext.GetTokenAsync("access_token").Result;
+        request.AddHeader("Authorization", $"Bearer {accsessToken}");
         var response = restClient.Execute(request);
         var products = JsonSerializer.Deserialize<List<ProductDto>>(response.Content);
         return products;
@@ -30,6 +36,10 @@ public class RProductManagementService : IProductManagementService
     public ResultDto UpdateName(UpdateProductDto updateProduct)
     {
         var request = new RestRequest($"/api/ProductManagement", Method.Put);
+
+        var accsessToken = httpContextAccessor.HttpContext.GetTokenAsync("access_token").Result;
+        request.AddHeader("Authorization", $"Bearer {accsessToken}");
+
         request.AddHeader("Content-Type", "application/json");
         string serializeModel = JsonSerializer.Serialize(updateProduct);
         request.AddParameter("application/json", serializeModel, ParameterType.RequestBody);

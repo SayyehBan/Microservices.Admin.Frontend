@@ -7,11 +7,13 @@ using RestSharp;
 var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 builder.Services.AddControllersWithViews();
+builder.Services.AddHttpContextAccessor();
 builder.Services.AddScoped<IProductManagementService>(p =>
 {
     return new RProductManagementService(new
-   RestClient(LinkServices.ApiGatewayAdmin));
+   RestClient(LinkServices.ApiGatewayAdmin), new HttpContextAccessor());
 });
+
 builder.Services.AddAuthentication(c =>
 {
     c.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -19,7 +21,7 @@ builder.Services.AddAuthentication(c =>
 
 }).
 AddCookie(CookieAuthenticationDefaults.AuthenticationScheme).
-AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, 
+AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme,
 options =>
 {
     options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
@@ -31,6 +33,8 @@ options =>
     options.SaveTokens = true;
     options.Scope.Add("profile");
     options.Scope.Add("openid");
+    options.Scope.Add("apigatewayadmin.fullaccess");
+    options.Scope.Add("productservice.admin");
 });
 var app = builder.Build();
 
