@@ -1,5 +1,7 @@
 using Microservices.Admin.Frontend.Models.Links;
 using Microservices.Admin.Frontend.Models.ViewServices.ProductServices;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authentication.OpenIdConnect;
 using RestSharp;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,9 +10,28 @@ builder.Services.AddControllersWithViews();
 builder.Services.AddScoped<IProductManagementService>(p =>
 {
     return new RProductManagementService(new
-   RestClient(LinkServices.ApiGatewayForWeb));
+   RestClient(LinkServices.ApiGatewayAdmin));
 });
+builder.Services.AddAuthentication(c =>
+{
+    c.DefaultScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    c.DefaultChallengeScheme = OpenIdConnectDefaults.AuthenticationScheme;
 
+}).
+AddCookie(CookieAuthenticationDefaults.AuthenticationScheme).
+AddOpenIdConnect(OpenIdConnectDefaults.AuthenticationScheme, 
+options =>
+{
+    options.SignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+    options.Authority = LinkServices.IdentityServer;
+    options.ClientId = "adminfrontend";
+    options.ClientSecret = "123456";
+    options.ResponseType = "code";
+    options.GetClaimsFromUserInfoEndpoint = true;
+    options.SaveTokens = true;
+    options.Scope.Add("profile");
+    options.Scope.Add("openid");
+});
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -25,7 +46,7 @@ app.UseHttpsRedirection();
 app.UseStaticFiles();
 
 app.UseRouting();
-
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllerRoute(
