@@ -1,7 +1,9 @@
 using Microservices.Admin.Frontend.Models.Links;
 using Microservices.Admin.Frontend.Models.ViewServices.ProductServices;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;
+using Microsoft.IdentityModel.Tokens;
 using RestSharp;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -35,6 +37,13 @@ options =>
     options.Scope.Add("openid");
     options.Scope.Add("apigatewayadmin.fullaccess");
     options.Scope.Add("productservice.admin");
+    options.Scope.Add("roles");
+    options.ClaimActions.MapUniqueJsonKey("role", "role");
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        NameClaimType = "name",
+        RoleClaimType = "role"
+    };
 });
 var app = builder.Build();
 
